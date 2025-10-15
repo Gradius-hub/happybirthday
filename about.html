@@ -1,0 +1,176 @@
+<!-- surprise.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Birthday Surprise</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #a1c4fd 0%, #fbc2eb 100%);
+      overflow: hidden;
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      font-family: 'Dancing Script', cursive, sans-serif;
+    }
+
+    .type {
+      font-size: 2.3rem;
+      color: #ff6f91;
+      margin: 40px 0 30px 0;
+      text-shadow: 0 4px 12px #fff;
+      min-height: 60px;
+      z-index: 10;
+      position: relative;
+    }
+
+    .btn {
+      background: linear-gradient(90deg, #7f53ac, #657cdf);
+      border: none;
+      outline: none;
+      padding: 15px 36px;
+      font-size: 1.1rem;
+      border-radius: 28px;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 4px 12px #657cdf40;
+      margin-top: 20px;
+      transition: background 0.18s;
+      z-index: 10;
+      position: relative;
+    }
+
+    .btn:hover {
+      background: #7f53ac;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .flower {
+      position: fixed;
+      pointer-events: none;
+      width: 32px;
+      font-size: 2rem;
+      animation: drop 4s linear infinite;
+    }
+
+    @keyframes drop {
+      to {
+        transform: translateY(100vh) rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="fireworksCanvas"></canvas>
+  <div id="flowers"></div>
+  <h1 class="type" id="type"></h1>
+  <button class="btn" onclick="window.location.href='contact.html'">Secret Message 💌</button>
+
+  <script>
+    // Typewriter effect
+    const msg = "You are perfect and so Beautiful😘 ";
+    let j = 0;
+
+    function typeEffect() {
+      if (j < msg.length) {
+        document.getElementById("type").innerHTML += msg.charAt(j);
+        j++;
+        setTimeout(typeEffect, 100);
+      }
+    }
+    typeEffect();
+
+    // Fireworks setup
+    const c = document.getElementById("fireworksCanvas"),
+      ctx = c.getContext("2d");
+
+    function resizeCanvas() {
+      c.width = window.innerWidth;
+      c.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.onresize = resizeCanvas;
+
+    let fireworks = [];
+
+    function Color() {
+      return 'hsla(' + (Math.random() * 360) + ',80%,60%,1)';
+    }
+
+    class Particle {
+      constructor(x, y, c, dx, dy) {
+        this.x = x;
+        this.y = y;
+        this.c = c || Color();
+        this.dx = dx || Math.cos(Math.random() * 2 * Math.PI) * Math.random() * 6;
+        this.dy = dy || Math.sin(Math.random() * 2 * Math.PI) * Math.random() * 6;
+        this.life = 100;
+        this.size = 2 + Math.random() * 2;
+      }
+      update() {
+        this.x += this.dx;
+        this.y += this.dy;
+        this.dy += 0.03;
+        this.dx *= 0.98;
+        this.dy *= 0.98;
+        this.life--;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, 2 * Math.PI);
+        ctx.fillStyle = this.c;
+        ctx.fill();
+      }
+    }
+
+    function spawnFirework() {
+      let x = 100 + Math.random() * (c.width - 200),
+        y = 100 + Math.random() * (c.height / 2 - 100);
+      let color = Color();
+      for (let i = 0; i < 25; i++) {
+        fireworks.push(new Particle(x, y, color, Math.cos(2 * Math.PI / 25 * i) * Math.random() * 6, Math.sin(2 * Math.PI / 25 * i) * Math.random() * 6));
+      }
+    }
+    setInterval(spawnFirework, 800);
+
+    function loop() {
+      ctx.clearRect(0, 0, c.width, c.height);
+      for (let i = fireworks.length - 1; i >= 0; i--) {
+        fireworks[i].update();
+        if (fireworks[i].life <= 0) fireworks.splice(i, 1);
+      }
+      requestAnimationFrame(loop);
+    }
+    loop();
+
+    // Flower rain
+    const flowerEmojis = ["🌸", "🌼", "💐", "🌺", "🌻"];
+
+    function spawnFlower() {
+      let f = document.createElement("div");
+      f.className = "flower";
+      f.innerText = flowerEmojis[Math.floor(Math.random() * flowerEmojis.length)];
+      f.style.left = Math.random() * 100 + "vw";
+      f.style.animationDuration = (2 + Math.random() * 2) + "s";
+      document.body.appendChild(f);
+      setTimeout(() => f.remove(), 3500);
+    }
+    setInterval(spawnFlower, 300);
+  </script>
+</body>
+
+</html>
